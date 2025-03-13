@@ -78,7 +78,7 @@ void SocketConnection::ReadNextMessage() {
 
     websocket_stream_.async_read(
         data_buffer_,
-        [self = shared_from_this()](error_code ec, std::size_t) {
+        [self = shared_from_this()](const error_code &ec, std::size_t) {
             if (ec) {
                 std::cerr << "WebSocket read error: " << ec.message() << std::endl;
                 return;

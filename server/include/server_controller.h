@@ -17,7 +17,8 @@ private:
     static bool ValidateArguments(int arg_count, char** arg_values);
     static void InitializeNetworkComponents(
         io_context& ctx,
-        const char* port
+        const char* port,
+        size_t thread_count = 4
     );
     static void SetupSignalHandling();
 
