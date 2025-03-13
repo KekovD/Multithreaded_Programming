@@ -70,30 +70,65 @@ void SocketConnection::ProcessClientCommand(const RoomCommand& cmd) {
 
 void SocketConnection::MaintainConnection() {
     ConfigureHeartbeat();
+    ReadNextMessage();
+}
+
+void SocketConnection::ReadNextMessage() {
     data_buffer_.consume(data_buffer_.size());
 
-    websocket_stream_.async_read(data_buffer_,
-        [self = shared_from_this()](error_code ec, auto) {
-            if (!ec) {
+    websocket_stream_.async_read(
+        data_buffer_,
+        [self = shared_from_this()](error_code ec, std::size_t) {
+            if (ec) {
+                std::cerr << "WebSocket read error: " << ec.message() << std::endl;
+                return;
+            }
+
+            try {
                 self->associated_room_->DistributeMessage(
                     self->user_identity_,
                     buffers_to_string(self->data_buffer_.data()));
-                self->MaintainConnection();
+
+                self->ReadNextMessage();
             }
-        });
+            catch (const std::exception& e) {
+                std::cerr << "Error processing message: " << e.what() << std::endl;
+            }
+        }
+    );
 }
 
 void SocketConnection::ConfigureHeartbeat() {
+    heartbeat_timer_.cancel();
+
     heartbeat_timer_.expires_after(std::chrono::seconds(5));
-    heartbeat_timer_.async_wait([self = shared_from_this()](const error_code &ec) {
-        if (!ec && !self->pong_received_) {
-            self->TerminateConnection("Heartbeat failure", websocket::close_code::internal_error);
-            return;
+    heartbeat_timer_.async_wait(
+        [self = shared_from_this()](const error_code &ec) {
+            if (ec == boost::asio::error::operation_aborted) {
+                return;
+            }
+
+            if (!ec && !self->pong_received_) {
+                std::cout << "Heartbeat failure detected for user: " << self->user_identity_ << std::endl;
+                self->TerminateConnection("Heartbeat failure", websocket::close_code::internal_error);
+                return;
+            }
+
+            self->pong_received_ = false;
+
+            try {
+                self->websocket_stream_.async_ping(
+                    "",
+                    [](auto){}
+                );
+
+                self->ConfigureHeartbeat();
+            }
+            catch (const std::exception& e) {
+                std::cerr << "Error in heartbeat ping: " << e.what() << std::endl;
+            }
         }
-        self->pong_received_ = false;
-        self->websocket_stream_.async_ping("", [](auto){});
-        self->ConfigureHeartbeat();
-    });
+    );
 }
 
 std::string SocketConnection::GetUserIdentifier() const {

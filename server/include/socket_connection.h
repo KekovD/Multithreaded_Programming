@@ -33,6 +33,7 @@ private:
     void ConfigureHeartbeat();
     void PrepareSessionData();
     void MaintainConnection();
+    void ReadNextMessage();
 };
 
 #endif // SOCKET_CONNECTION_H

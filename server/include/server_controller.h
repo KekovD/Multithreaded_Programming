@@ -5,6 +5,7 @@
 #include <boost/atomic.hpp>
 
 using boost::system::error_code;
+using boost::asio::io_context;
 
 class ServerController {
 public:
@@ -15,7 +16,7 @@ public:
 private:
     static bool ValidateArguments(int arg_count, char** arg_values);
     static void InitializeNetworkComponents(
-        boost::asio::io_context& ctx,
+        io_context& ctx,
         const char* port
     );
     static void SetupSignalHandling();
@@ -24,7 +25,7 @@ private:
     public:
         void WaitForCompletion();
         explicit ThreadPoolWrapper(size_t threads);
-        void Submit(boost::asio::io_context& ctx);
+        void Submit(io_context& ctx);
         ~ThreadPoolWrapper();
         
     private:
