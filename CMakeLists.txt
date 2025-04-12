@@ -3,3 +3,4 @@ project(server-app)
 
 add_subdirectory(server)
 add_subdirectory(server_tests)
+add_subdirectory(qt_client)
