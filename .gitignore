@@ -8,6 +8,8 @@ Testing/
 CMakeCache.txt
 cmake_install.cmake
 Makefile
+build
+cmake-build-debug
 
 server_tests/lib/
 server_tests/CMakeFiles/
@@ -29,5 +31,3 @@ server/cmake_install.cmake
 server/CMakeCache.txt
 server/Makefile
 server/server
-
-qt_client/build
