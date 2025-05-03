@@ -68,7 +68,7 @@ TEST_F(SocketConnectionTest, BroadcastMessage) {
     room->AddConnection(sender);
     room->AddConnection(receiver);
 
-    room->DistributeMessage("sender_user", "Hello, world!");
+    room->DistributeMessage("Hello, world!");
 
     auto messages = room->GetMessageHistory();
     ASSERT_EQ(messages.size(), 1);

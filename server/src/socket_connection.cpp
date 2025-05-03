@@ -85,9 +85,7 @@ void SocketConnection::ReadNextMessage() {
             }
 
             try {
-                self->associated_room_->DistributeMessage(
-                    self->user_identity_,
-                    buffers_to_string(self->data_buffer_.data()));
+                self->associated_room_->DistributeMessage(buffers_to_string(self->data_buffer_.data()));
 
                 self->ReadNextMessage();
             }

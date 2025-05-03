@@ -15,7 +15,7 @@ public:
 
     void AddConnection(boost::weak_ptr<SocketConnection> connection);
     void RemoveConnection(const boost::weak_ptr<SocketConnection> &connection);
-    void DistributeMessage(const std::string& sender, const std::string& content);
+    void DistributeMessage(const std::string& content);
 
     std::vector<std::string> GetMessageHistory() const;
     std::vector<std::string> GetActiveUsers() const;
@@ -24,11 +24,6 @@ private:
     static void ProcessMessageDelivery(
         const std::string& formatted_message,
         const boost::weak_ptr<SocketConnection> &connection
-    );
-
-    static std::string FormatMessage(
-        const std::string& username,
-        const std::string& message
     );
 
     mutable boost::mutex room_mutex_;

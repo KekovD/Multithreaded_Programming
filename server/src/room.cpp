@@ -31,17 +31,16 @@ void Room::RemoveConnection(const boost::weak_ptr<SocketConnection> &connection)
     }
 }
 
-void Room::DistributeMessage(const std::string& sender, const std::string& content) {
-    auto formatted = FormatMessage(sender, content);
+void Room::DistributeMessage(const std::string& content) {
 
     boost::lock_guard guard(room_mutex_);
-    message_history_.emplace_back(formatted);
+    message_history_.emplace_back(content);
 
     for (auto& conn : connections_) {
         post(
             delivery_pool_,
-            [formatted, conn] {
-                ProcessMessageDelivery(formatted, conn);
+            [content, conn] {
+                ProcessMessageDelivery(content, conn);
             }
         );
     }
@@ -72,13 +71,4 @@ auto Room::ProcessMessageDelivery(
     if (const auto conn = connection.lock()) {
         conn->TransmitData(formatted_message);
     }
-}
-
-std::string Room::FormatMessage(
-    const std::string& username,
-    const std::string& message
-) {
-    namespace chrono = std::chrono;
-    auto now = chrono::floor<chrono::seconds>(chrono::system_clock::now());
-    return std::format("[{:%T}]<{}> {}", now, username, message);
 }
